@@ -1,0 +1,17 @@
+*.*~
+*.autosave
+*.aux
+*.bak
+*.diff
+*.log*
+*.orig
+*.out
+*.prepare
+*.pyc
+*.sortinc
+*.tex
+*.toc
+*~
+*-stamp
+.*.swp
+.DS_Store
