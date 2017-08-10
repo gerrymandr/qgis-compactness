@@ -180,6 +180,23 @@ class compactnessCalculator:
         del self.toolbar
 
 
+    def get_current_selection(self):
+        """Returns the features currently selected by the user. Exits
+        gracefully if nothing is selected."""
+        pass
+
+    def feature_to_geojson(self):
+        """Converts a qgis Feature geometry to GeoJSON format."""
+        pass
+
+    def add_layer_to_ui(self):
+        """Adds a layer to the current UI as a temporary layer."""
+        pass
+
+    def save_layer_to_disk(self, path):
+        """Saves a layer to disk."""
+        pass
+
     def run(self):
         """Run method that performs all the real work"""
         # show the dialog
