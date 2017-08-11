@@ -27,12 +27,12 @@ def getLayerNames(vTypes):
     return sorted(layerlist, cmp=locale.strcoll)
 
 # Generate a save file dialog with a dropdown box for choosing encoding style
-def saveDialog(parent, filtering="Shapefiles (*.shp)"):
+def saveDialog(parent, filtering="geojson (*.geojson)"):
     settings = QSettings()
     dirName = settings.value("/UI/lastShapefileDir")
     encode = settings.value("/UI/encoding")
-    fileDialog = QgsEncodingFileDialog(parent, "Output shape file", dirName, filtering, encode)
-    fileDialog.setDefaultSuffix("shp")
+    fileDialog = QgsEncodingFileDialog(parent, "Output geojson file", dirName, filtering, encode)
+    fileDialog.setDefaultSuffix("geojson")
     fileDialog.setFileMode(QFileDialog.AnyFile)
     fileDialog.setAcceptMode(QFileDialog.AcceptSave)
     fileDialog.setConfirmOverwrite(True)
