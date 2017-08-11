@@ -78,7 +78,7 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QCheckBox" name="polsby">
+  <widget class="QCheckBox" name="Polsby">
    <property name="geometry">
     <rect>
      <x>130</x>
