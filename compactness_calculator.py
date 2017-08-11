@@ -174,7 +174,7 @@ class CompactnessCalculator:
             parent=self.iface.mainWindow())
 
         QObject.connect(self.dlg.ConvexHull, SIGNAL("currentIndexChanged(int)"), self.populate)
-        QObject.connect(self.dlg.polsby, SIGNAL("currentIndexChanged(int)"), self.populate)
+        QObject.connect(self.dlg.Polsby, SIGNAL("currentIndexChanged(int)"), self.populate)
         QObject.connect(self.dlg.Reock, SIGNAL("currentIndexChanged(int)"), self.populate)
         QObject.connect(self.dlg.Schwartzberg, SIGNAL("currentIndexChanged(int)"), self.populate)
 
@@ -265,6 +265,7 @@ class CompactnessCalculator:
 
         attributes = self.feature.attributes()  # list of values
         fields = self.feature.fields()  # QgsFields object
+
         # Append new fields and attributes
         for score in self.scores:
             fields.append(QgsField(score, QVariant.Double, '', 20, 4))
@@ -272,9 +273,16 @@ class CompactnessCalculator:
 
         new_layer.startEditing()
 
+        # Set layer CRS
+        # NOTE A warning message will still appear in QGIS because this isn't set at
+        # layer creation time.
+        new_layer.setCrs(self.crs)
+
+        # Set layer attributes (fields)
         provider.addAttributes(fields.toList())
         new_layer.updateFields()
 
+        # Create feature and set attributes
         f = QgsFeature()
         f.setGeometry(self.feature.geometry())
         f.setAttributes(attributes)
@@ -294,26 +302,6 @@ class CompactnessCalculator:
             json.dump(self.geojson)
         return True
 
-    # def run(self):
-    #     layer = self.iface.activeLayer()
-
-    #     # layer must be activated
-    #     if not layer:
-    #         QMessageBox.critical(self.dlg, 'Error', u'Please select layer!')
-    #         return
-
-
-    #     # >= 1 feature must be selected
-    #     if len(layer.selectedFeatures()) != 1:
-    #         QMessageBox.critical(self.dlg, 'Error', u'Please select exactly one feature!')
-    #         return
-    #     else:
-    #         self.dlg.show()
-    #         self.feature = layer.selectedFeatures()[0]
-    #         self.qgscrs = layer.crs()
-    #         self.populate()
-
-
     def run(self):
         """Run method that performs all the real work"""
         if not self.get_current_selection():
@@ -332,7 +320,16 @@ class CompactnessCalculator:
                 return
             
             # Get desired metrics from dialog
-            mets = ["PP"]
+            mets = []
+            if self.dlg.Polsby.isChecked():
+                mets.append("PP")
+            if self.dlg.ConvexHull.isChecked():
+                mets.append("CH")
+            if self.dlg.Reock.isChecked():
+                mets.append("RK")
+            if self.dlg.Schwartzberg.isChecked():
+                mets.append("SB")
+
             if not self.calc_scores(mets):
                 QMessageBox.critical(self.dlg, 'Error', u"Error calculating scores")
                 return
@@ -343,11 +340,4 @@ class CompactnessCalculator:
             return
 
     def populate(self):
-
-        if self:
-            # conversion
-            print self.dlg.ConvexHull.isChecked()
-            print self.dlg.polsby.isChecked()
-            print self.dlg.Reock.isChecked()
-            print self.dlg.Schwartzberg.isChecked()
-
+        pass
