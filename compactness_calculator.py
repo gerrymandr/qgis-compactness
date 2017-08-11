@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QObject, SIGNAL
 from PyQt4.QtGui import QAction, QIcon, QMessageBox
 from qgis.core import QgsCoordinateTransform, QgsCoordinateReferenceSystem
 # Initialize Qt resources from file resources.py
@@ -171,6 +171,8 @@ class CompactnessCalculator:
             callback=self.run,
             parent=self.iface.mainWindow())
 
+        QObject.connect(self.dlg.comboBox, SIGNAL("currentIndexChanged(int)"), self.populate)
+
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -261,6 +263,26 @@ class CompactnessCalculator:
         """Saves a layer to disk."""
         pass
 
+    # def run(self):
+    #     layer = self.iface.activeLayer()
+
+    #     # layer must be activated
+    #     if not layer:
+    #         QMessageBox.critical(self.dlg, 'Error', u'Please select layer!')
+    #         return
+
+
+    #     # >= 1 feature must be selected
+    #     if len(layer.selectedFeatures()) != 1:
+    #         QMessageBox.critical(self.dlg, 'Error', u'Please select exactly one feature!')
+    #         return
+    #     else:
+    #         self.dlg.show()
+    #         self.feature = layer.selectedFeatures()[0]
+    #         self.qgscrs = layer.crs()
+    #         self.populate()
+
+
     def run(self):
         """Run method that performs all the real work"""
         if not self.get_current_selection():
@@ -270,6 +292,7 @@ class CompactnessCalculator:
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
+        self.populate()
         # See if OK was pressed
         if result:
             self.feature_to_geojson()
@@ -287,5 +310,18 @@ class CompactnessCalculator:
                 QMessageBox.critical(self.dlg, 'Error', u"Error adding layer to UI")
                 return
 
-            return            
+            return
+
+    def populate(self):
+
+        if self:
+            # conversion
+            if self.dlg.comboBox.currentText() == 'Polsby-Popper':
+                print '1'
+            if self.dlg.comboBox.currentText() == 'Reock':
+                print '2'
+            if self.dlg.comboBox.currentText() == 'Convex-Hull':
+                print '3'
+            if self.dlg.comboBox.currentText() == 'Schwartzberg':
+                print '4'
 
