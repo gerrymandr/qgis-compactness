@@ -330,30 +330,23 @@ class CompactnessCalculator:
             if self.dlg.Schwartzberg.isChecked():
                 mets.append("SB")
 
+            if mets == []:
+                QMessageBox.warning(self.dlg, 'Warning', u"Please select at least one metric.")
+                return
+
             if not self.calc_scores(mets):
                 QMessageBox.critical(self.dlg, 'Error', u"Error calculating scores")
                 return
-
-            if not self.add_layer_to_ui():
-                QMessageBox.critical(self.dlg, 'Error', u"Error adding layer to UI")
-                return
+            
+            if self.dlg.layerFlag.isChecked():
+                if not self.add_layer_to_ui():
+                    QMessageBox.critical(self.dlg, 'Error', u"Error adding layer to UI")
+                    return
+            
+            if self.dlg.filepath.text():
+                self.save_to_geojson(self.dlg.filepath.text())
+            
             return
-        self.loadToMap()
 
     def populate(self):
-
-        if self:
-            # conversion
-            print self.dlg.ConvexHull.isChecked()
-            print self.dlg.Polsby.isChecked()
-            print self.dlg.Reock.isChecked()
-            print self.dlg.Schwartzberg.isChecked()
-
-    # create load to map
-    def loadToMap(self):
-        if self.dlg.addBox.checkState() == Qt.Checked:
-            if not util.addShape(self.dlg.shapefileName):
-                QMessageBox.warning(None, "compactness", \
-                    QApplication.translate("compactness", \
-                    "Error loading shapefile:\n", None, \
-                    QApplication.UnicodeUTF8) + self.dlg.shapefileName)
+        pass

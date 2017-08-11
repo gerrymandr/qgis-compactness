@@ -47,9 +47,9 @@ class CompactnessCalculatorDialog(QtGui.QDialog, FORM_CLASS):
         # self.layerBox.currentIndexChanged.connect(self.sel)
 
     def browse(self):
-        self.lineEdit.clear()    # clear output file field
+        self.filepath.clear()    # clear output file field
         # open file dialog
         (self.shapefileName, self.encoding) = util.saveDialog(self)
         if self.shapefileName is None or self.encoding is None:
             return
-        self.lineEdit.setText(self.shapefileName)  # fill output file field
+        self.filepath.setText(self.shapefileName)  # fill output file field
