@@ -1,5 +1,5 @@
 #/***************************************************************************
-# compactnessCalculator
+# CompactnessCalculator
 #
 # Compactness calculations
 #							 -------------------
@@ -40,7 +40,7 @@ SOURCES = \
 	__init__.py \
 	compactness_calculator.py compactness_calculator_dialog.py
 
-PLUGINNAME = compactnessCalculator
+PLUGINNAME = CompactnessCalculator
 
 PY_FILES = \
 	__init__.py \

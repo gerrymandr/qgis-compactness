@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- compactnessCalculator
+ CompactnessCalculator
                                  A QGIS plugin
  Compactness calculations
                              -------------------
@@ -25,11 +25,11 @@
 
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
-    """Load compactnessCalculator class from file compactnessCalculator.
+    """Load CompactnessCalculator class from file CompactnessCalculator.
 
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
     #
-    from .compactness_calculator import compactnessCalculator
-    return compactnessCalculator(iface)
+    from .compactness_calculator import CompactnessCalculator
+    return CompactnessCalculator(iface)

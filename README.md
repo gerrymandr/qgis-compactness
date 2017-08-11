@@ -2,8 +2,8 @@
 
 Congratulations! You just built a plugin for QGIS!  
 
-<div id="help" style="font-size:.9em;">Your plugin **compactnessCalculator** was created in:  
-  **/Users/vanessaarchambault/Documents/tufts/compactnessCalculator**
+<div id="help" style="font-size:.9em;">Your plugin **CompactnessCalculator** was created in:  
+  **/Users/vanessaarchambault/Documents/tufts/CompactnessCalculator**
 
 Your QGIS plugin directory is located at:  
   **/Users/vanessaarchambault/.qgis2/python/plugins**
