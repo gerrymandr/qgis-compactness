@@ -285,9 +285,12 @@ class CompactnessCalculator:
 
         return True
 
-    def save_layer_to_disk(self, path):
-        """Saves a layer to disk."""
-        pass
+    def save_to_geojson(self, path):
+        """Saves the GeoJSON to disk."""
+
+        with open(path, 'w') as fout:
+            json.dump(self.geojson)
+        return True
 
     def run(self):
         """Run method that performs all the real work"""
