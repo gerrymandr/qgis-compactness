@@ -18,7 +18,7 @@
     <rect>
      <x>70</x>
      <y>10</y>
-     <width>181</width>
+     <width>211</width>
      <height>16</height>
     </rect>
    </property>
@@ -26,7 +26,7 @@
     <string>Select Compactness Metrics:</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit">
+  <widget class="QLineEdit" name="filepath">
    <property name="geometry">
     <rect>
      <x>60</x>
@@ -68,7 +68,7 @@
   <widget class="QCheckBox" name="Polsby">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>80</x>
      <y>30</y>
      <width>121</width>
      <height>20</height>
@@ -81,9 +81,9 @@
   <widget class="QCheckBox" name="ConvexHull">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>80</x>
      <y>60</y>
-     <width>101</width>
+     <width>111</width>
      <height>20</height>
     </rect>
    </property>
@@ -94,9 +94,9 @@
   <widget class="QCheckBox" name="Reock">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>80</x>
      <y>90</y>
-     <width>86</width>
+     <width>71</width>
      <height>20</height>
     </rect>
    </property>
@@ -107,9 +107,9 @@
   <widget class="QCheckBox" name="Schwartzberg">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>80</x>
      <y>120</y>
-     <width>86</width>
+     <width>121</width>
      <height>20</height>
     </rect>
    </property>
@@ -120,14 +120,14 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>60</x>
      <y>160</y>
      <width>201</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>choose file output path:</string>
+    <string>Choose file output path:</string>
    </property>
   </widget>
  </widget>
