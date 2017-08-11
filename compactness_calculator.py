@@ -231,7 +231,27 @@ class CompactnessCalculator:
 
     def calc_scores(self, metrics):
         """Calculates compactness metrics for the geom using mander"""
-        pass
+        d = districts.District(json=self.geojson)
+        scores = {}
+        for metric in metrics:
+            if metric == "PP":
+                scores[metric] = metrics.calculatePolsbyPopper(d)
+            elif metric == "CH":
+                scores[metric] = metrics.calculateConvexHull(d)
+            elif metric == "RK":
+                scores[metric] = metrics.calculateReock(d)
+            elif metric == "SB":
+                scores[metric] = metrics.calculateSchwartzberg(d)        
+ 
+        for score in scores:
+            # Check if attributes already exist as properties
+            if score in self.geojson['features'][0]['properties']:
+                scores[score + '_'] = scores[score]
+                scores.pop(score)
+
+        # Add scores to GeoJSON properties
+        self.geojson['features'][0]['properties'].update(scores)
+        return True
 
     def add_layer_to_ui(self):
         """Adds a layer to the current UI as a temporary layer."""
@@ -258,6 +278,14 @@ class CompactnessCalculator:
                 return
 
             # Get desired metrics from dialog
-            metrics = []
-            scores = self.calc_scores(metrics)
-            pass
+            metrics = ["PP"]
+            if not self.calc_scores(metrics):
+                QMessageBox.critical(self.dlg, 'Error', u"Error calculating scores")
+                return
+
+            if not self.add_layer_to_ui():
+                QMessageBox.critical(self.dlg, 'Error', u"Error adding layer to UI")
+                return
+
+            return            
+
