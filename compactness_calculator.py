@@ -24,7 +24,7 @@ from PyQt4.QtCore import (QSettings, QTranslator, qVersion, QCoreApplication,
                           QVariant, QObject, SIGNAL)
 from PyQt4.QtGui import QAction, QIcon, QMessageBox
 from qgis.core import (QgsCoordinateTransform, QgsCoordinateReferenceSystem,
-                       QgsFeature)
+                       QgsFeature, QgsVectorLayer, QgsField, QgsMapLayerRegistry)
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog
@@ -229,15 +229,23 @@ class CompactnessCalculator:
         # We can't calculate minimum bounding circle easily. Maybe calculate
         # largest distance from centroid to edge?
 
-        # Export to GeoJSON dictionary
-        self.geojson = json.loads(geom.exportToGeoJSON())
+        # Put the QGIS geometry into a GeoJSON feature
+        # TODO attach QGIS attributes -> GeoJSON feature properties
+        # TODO handle more than one feature        
+        f = {'geometry': json.loads(geom.exportToGeoJSON()),
+             'properties': {},
+             'type': 'Feature'}
+        self.geojson = {'type': 'FeatureCollection',
+                        'features': [f]}
         return True
 
-    def calc_scores(self, metrics):
+    def calc_scores(self, mets):
         """Calculates compactness metrics for the geom using mander"""
         d = districts.District(json=self.geojson)
+        print d.gdf.head()
+        print d.area, d.perimeter, d.epsg
         self.scores = {}
-        for metric in metrics:
+        for metric in mets:
             if metric == "PP":
                 self.scores[metric] = metrics.calculatePolsbyPopper(d)
             elif metric == "CH":
@@ -247,19 +255,11 @@ class CompactnessCalculator:
             elif metric == "SB":
                 self.scores[metric] = metrics.calculateSchwartzberg(d)        
  
-        for score in self.scores:
-            # Check if attributes already exist as properties
-            if score in self.geojson['features'][0]['properties']:
-                self.scores[score + '_'] = self.scores[score]
-                self.scores.pop(score)
-
-        # Add scores to GeoJSON properties
-        self.geojson['features'][0]['properties'].update(self.scores)
         return True
 
     def add_layer_to_ui(self):
         """Creates a layer and adds it to the current UI."""
-        geom_type = self.geojson['geometry']['type']  # Polygon, MultiPolygon, etc.
+        geom_type = self.geojson['features'][0].get('type', 'Polygon')  # Polygon, MultiPolygon, etc.
 
         # Create a new layer in memory
         new_layer = QgsVectorLayer(geom_type, "compactness_scores", "memory")
@@ -290,7 +290,7 @@ class CompactnessCalculator:
         return True
 
     def save_to_geojson(self, path):
-        """Saves the GeoJSON to disk."""
+        """Saves the GeoJSON coordinates to disk."""
 
         with open(path, 'w') as fout:
             json.dump(self.geojson)
@@ -332,17 +332,17 @@ class CompactnessCalculator:
             if not isinstance(self.geojson, dict):
                 QMessageBox.critical(self.dlg, 'Error', u"GeoJSON wasn't formed properly.")
                 return
-
+            
             # Get desired metrics from dialog
-            metrics = ["PP"]
-            if not self.calc_scores(metrics):
+            mets = ["PP"]
+            if not self.calc_scores(mets):
                 QMessageBox.critical(self.dlg, 'Error', u"Error calculating scores")
                 return
 
             if not self.add_layer_to_ui():
                 QMessageBox.critical(self.dlg, 'Error', u"Error adding layer to UI")
                 return
-
+            print self.scores
             return
 
     def populate(self):
