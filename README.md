@@ -4,7 +4,9 @@ A work-in-progress at the Metric Geometry and Gerrymandering Group (MGGG)
 
 An open-source plugin built to allow QGIS users to apply different Measures of Compactness on District polygons
 
-Built on top of Python's [Mander Library](https://pypi.python.org/pypi/mander)
+Built on top of the Python [Mander Library](https://pypi.python.org/pypi/mander)
+
+Watch this for an overview on the issues concerning [Redistricting, Gerrymandering, and Compactness of Political Districts](https://www.youtube.com/watch?v=vdkvQ9y04K4)
 
 ## Using these Resources
 
