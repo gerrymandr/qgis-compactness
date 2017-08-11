@@ -173,7 +173,10 @@ class CompactnessCalculator:
             callback=self.run,
             parent=self.iface.mainWindow())
 
-        QObject.connect(self.dlg.comboBox, SIGNAL("currentIndexChanged(int)"), self.populate)
+        QObject.connect(self.dlg.ConvexHull, SIGNAL("currentIndexChanged(int)"), self.populate)
+        QObject.connect(self.dlg.polsby, SIGNAL("currentIndexChanged(int)"), self.populate)
+        QObject.connect(self.dlg.Reock, SIGNAL("currentIndexChanged(int)"), self.populate)
+        QObject.connect(self.dlg.Schwartzberg, SIGNAL("currentIndexChanged(int)"), self.populate)
 
 
     def unload(self):
@@ -343,12 +346,8 @@ class CompactnessCalculator:
 
         if self:
             # conversion
-            if self.dlg.comboBox.currentText() == 'Polsby-Popper':
-                print '1'
-            if self.dlg.comboBox.currentText() == 'Reock':
-                print '2'
-            if self.dlg.comboBox.currentText() == 'Convex-Hull':
-                print '3'
-            if self.dlg.comboBox.currentText() == 'Schwartzberg':
-                print '4'
+            print self.dlg.ConvexHull.isChecked()
+            print self.dlg.polsby.isChecked()
+            print self.dlg.Reock.isChecked()
+            print self.dlg.Schwartzberg.isChecked()
 

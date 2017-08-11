@@ -24,6 +24,7 @@
 import os
 
 from PyQt4 import QtGui, uic
+import util
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'compactness_calculator_dialog_base.ui'))
@@ -39,3 +40,16 @@ class CompactnessCalculatorDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        self.pushButton_2.clicked.connect(self.browse)
+        # self.okButton.clicked.connect(self.ok)
+        # self.cancelButton.clicked.connect(self.reject)
+        # layer changed event
+        # self.layerBox.currentIndexChanged.connect(self.sel)
+
+    def browse(self):
+        self.lineEdit.clear()    # clear output file field
+        # open file dialog
+        (self.shapefileName, self.encoding) = util.saveDialog(self)
+        if self.shapefileName is None or self.encoding is None:
+            return
+        self.lineEdit.setText(self.shapefileName)  # fill output file field
