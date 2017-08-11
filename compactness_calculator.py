@@ -22,7 +22,7 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QMessageBox
-from qgis.core import QgsCoordinateTransform, QgsCoordinateReferenceSystem
+from qgis.core import QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsFeature, QgsVariant
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog
@@ -232,30 +232,58 @@ class CompactnessCalculator:
     def calc_scores(self, metrics):
         """Calculates compactness metrics for the geom using mander"""
         d = districts.District(json=self.geojson)
-        scores = {}
+        self.scores = {}
         for metric in metrics:
             if metric == "PP":
-                scores[metric] = metrics.calculatePolsbyPopper(d)
+                self.scores[metric] = metrics.calculatePolsbyPopper(d)
             elif metric == "CH":
-                scores[metric] = metrics.calculateConvexHull(d)
+                self.scores[metric] = metrics.calculateConvexHull(d)
             elif metric == "RK":
-                scores[metric] = metrics.calculateReock(d)
+                self.scores[metric] = metrics.calculateReock(d)
             elif metric == "SB":
-                scores[metric] = metrics.calculateSchwartzberg(d)        
+                self.scores[metric] = metrics.calculateSchwartzberg(d)        
  
-        for score in scores:
+        for score in self.scores:
             # Check if attributes already exist as properties
             if score in self.geojson['features'][0]['properties']:
-                scores[score + '_'] = scores[score]
-                scores.pop(score)
+                self.scores[score + '_'] = self.scores[score]
+                self.scores.pop(score)
 
         # Add scores to GeoJSON properties
-        self.geojson['features'][0]['properties'].update(scores)
+        self.geojson['features'][0]['properties'].update(self.scores)
         return True
 
     def add_layer_to_ui(self):
-        """Adds a layer to the current UI as a temporary layer."""
-        pass
+        """Creates a layer and adds it to the current UI."""
+        geom_type = self.geojson['geometry']['type']  # Polygon, MultiPolygon, etc.
+
+        # Create a new layer in memory
+        new_layer = QgsVectorLayer(geom_type, "compactness_scores", "memory")
+        provider = new_layer.dataProvider()
+
+        attributes = self.feature.attributes()  # list of values
+        fields = self.feature.fields()  # QgsFields object
+        
+        # Append new fields and attributes
+        for score in self.scores:
+            fields.append(QgsField(score, QVariant.Double, '', 20, 3))
+            attributes.append(self.scores[score])
+       
+        new_layer.startEditing()
+
+        provider.addAttributes(fields)
+        new_layer.updateFields()
+
+        f = QgsFeature()
+        f.setGeometry(self.feature.geometry())
+        f.setAttributes(attributes)
+        provider.addFeatures([f])
+        
+        new_layer.commitChanges()
+        new_layer.updateExtents()
+        QgsMapLayerRegistry.instance().addMapLayer(new_layer)
+
+        return True
 
     def save_layer_to_disk(self, path):
         """Saves a layer to disk."""
