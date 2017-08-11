@@ -24,7 +24,8 @@ from PyQt4.QtCore import (QSettings, QTranslator, qVersion, QCoreApplication,
                           QVariant, QObject, SIGNAL)
 from PyQt4.QtGui import QAction, QIcon, QMessageBox
 from qgis.core import (QgsCoordinateTransform, QgsCoordinateReferenceSystem,
-                       QgsFeature, QgsVectorLayer, QgsField, QgsMapLayerRegistry)
+                       QgsFeature, QgsVectorLayer, QgsField,
+                       QgsMapLayerRegistry, QgsVectorFileWriter)
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog
@@ -292,10 +293,22 @@ class CompactnessCalculator:
         new_layer.commitChanges()
         new_layer.updateExtents()
 
-        if path:
-				    if not self.save_to_geojson(path):
-						    QMessageBox.critical(self.dlg, 'Error', u"Error saving GeoJSON to disk.")
-								return False
+        if path.strip() != "":
+            if path.endswith(".json"):
+                filetype = 'GeoJson'
+            elif path.endswith(".shp"):
+                filetype = 'ESRI Shapefile'
+            else:
+                QMessageBox.warning(self.dlg, 'Warning', u"Unsupported filetype.")
+                return False
+                
+            QgsVectorFileWriter.writeAsVectorFormat(new_layer, 
+                                                    path,
+                                                    'utf-8',
+                                                    new_layer.crs(),
+                                                    filetype)
+            print "Saved to " + path
+
         if layer: 
             QgsMapLayerRegistry.instance().addMapLayer(new_layer)
 
@@ -303,9 +316,9 @@ class CompactnessCalculator:
 
     def save_to_geojson(self, path):
         """Saves the GeoJSON coordinates to disk."""
+        QgsVectorFileWriter.writeAsVectorFormat(l, 
+            '/tmp/myjson.json', 'utf-8', l.crs(), 'GeoJson')
 
-        with open(path, 'w') as fout:
-            json.dump(self.geojson)
         return True
 
     def run(self):
@@ -345,13 +358,10 @@ class CompactnessCalculator:
                 QMessageBox.critical(self.dlg, 'Error', u"Error calculating scores")
                 return
             
-            if self.dlg.layerFlag.isChecked():
-            if not self.generate_layer(self.dlg.layerFlag.isChecked(),
-                                       self.dlg.filepath.text()):
+            if not self.generate_layer(layer=self.dlg.layerFlag.isChecked(),
+                                       path=self.dlg.filepath.text()):
                 QMessageBox.critical(self.dlg, 'Error', u"Error adding layer or saving file")
-                    return
-            
-            if self.dlg.filepath.text():
+                return
             return
 
     def populate(self):
