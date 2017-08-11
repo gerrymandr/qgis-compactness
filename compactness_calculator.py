@@ -257,7 +257,7 @@ class CompactnessCalculator:
                 self.scores[metric] = float(metrics.calculateSchwartzberg(d).values[0])
         return True
 
-    def add_layer_to_ui(self):
+    def generate_layer(self, layer=True, path=None):
         """Creates a layer and adds it to the current UI."""
         # Create a new layer in memory
         new_layer = QgsVectorLayer('Polygon', "compactness_scores", "memory")
@@ -291,7 +291,13 @@ class CompactnessCalculator:
         
         new_layer.commitChanges()
         new_layer.updateExtents()
-        QgsMapLayerRegistry.instance().addMapLayer(new_layer)
+
+        if path:
+				    if not self.save_to_geojson(path):
+						    QMessageBox.critical(self.dlg, 'Error', u"Error saving GeoJSON to disk.")
+								return False
+        if layer: 
+            QgsMapLayerRegistry.instance().addMapLayer(new_layer)
 
         return True
 
@@ -320,6 +326,7 @@ class CompactnessCalculator:
                 return
             
             # Get desired metrics from dialog
+            # TODO populate dialog with available metrics from mander
             mets = []
             if self.dlg.Polsby.isChecked():
                 mets.append("PP")
@@ -339,13 +346,12 @@ class CompactnessCalculator:
                 return
             
             if self.dlg.layerFlag.isChecked():
-                if not self.add_layer_to_ui():
-                    QMessageBox.critical(self.dlg, 'Error', u"Error adding layer to UI")
+            if not self.generate_layer(self.dlg.layerFlag.isChecked(),
+                                       self.dlg.filepath.text()):
+                QMessageBox.critical(self.dlg, 'Error', u"Error adding layer or saving file")
                     return
             
             if self.dlg.filepath.text():
-                self.save_to_geojson(self.dlg.filepath.text())
-            
             return
 
     def populate(self):
