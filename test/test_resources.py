@@ -18,7 +18,7 @@ from PyQt4.QtGui import QIcon
 
 
 
-class compactnessCalculatorDialogTest(unittest.TestCase):
+class CompactnessCalculatorDialogTest(unittest.TestCase):
     """Test rerources work."""
 
     def setUp(self):
@@ -31,12 +31,12 @@ class compactnessCalculatorDialogTest(unittest.TestCase):
 
     def test_icon_png(self):
         """Test we can click OK."""
-        path = ':/plugins/compactnessCalculator/icon.png'
+        path = ':/plugins/CompactnessCalculator/icon.png'
         icon = QIcon(path)
         self.assertFalse(icon.isNull())
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(compactnessCalculatorResourcesTest)
+    suite = unittest.makeSuite(CompactnessCalculatorResourcesTest)
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
 

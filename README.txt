@@ -1,7 +1,7 @@
 Plugin Builder Results
 
-Your plugin compactnessCalculator was created in:
-    /Users/vanessaarchambault/Documents/tufts/compactnessCalculator
+Your plugin CompactnessCalculator was created in:
+    /Users/vanessaarchambault/Documents/tufts/CompactnessCalculator
 
 Your QGIS plugin directory is located at:
     /Users/vanessaarchambault/.qgis2/python/plugins
@@ -21,7 +21,7 @@ What's Next:
 
   * Create your own custom icon, replacing the default icon.png
 
-  * Modify your user interface by opening compactnessCalculator.ui in Qt Designer
+  * Modify your user interface by opening CompactnessCalculator.ui in Qt Designer
 
   * You can use the Makefile to compile your Ui and resource files when
     you make changes. This requires GNU make (gmake)

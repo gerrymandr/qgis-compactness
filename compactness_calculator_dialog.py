@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- compactnessCalculatorDialog
+ CompactnessCalculatorDialog
                                  A QGIS plugin
  Compactness calculations
                              -------------------
@@ -29,10 +29,10 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'compactness_calculator_dialog_base.ui'))
 
 
-class compactnessCalculatorDialog(QtGui.QDialog, FORM_CLASS):
+class CompactnessCalculatorDialog(QtGui.QDialog, FORM_CLASS):
     def __init__(self, parent=None):
         """Constructor."""
-        super(compactnessCalculatorDialog, self).__init__(parent)
+        super(CompactnessCalculatorDialog, self).__init__(parent)
         # Set up the user interface from Designer.
         # After setupUI you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see

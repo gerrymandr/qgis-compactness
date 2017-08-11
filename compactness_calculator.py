@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- compactnessCalculator
+ CompactnessCalculator
                                  A QGIS plugin
  Compactness calculations
                               -------------------
@@ -21,15 +21,18 @@
  ***************************************************************************/
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon
+from PyQt4.QtGui import QAction, QIcon, QMessageBox
+from qgis.core import QgsCoordinateTransform, QgsCoordinateReferenceSystem
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog
-from compactness_calculator_dialog import compactnessCalculatorDialog
+from compactness_calculator_dialog import CompactnessCalculatorDialog
 import os.path
+import json
+from mander import districts, metrics, utils
 
 
-class compactnessCalculator:
+class CompactnessCalculator:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -49,7 +52,7 @@ class compactnessCalculator:
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',
-            'compactnessCalculator_{}.qm'.format(locale))
+            'CompactnessCalculator_{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -63,8 +66,8 @@ class compactnessCalculator:
         self.actions = []
         self.menu = self.tr(u'&Compactness Calculator')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'compactnessCalculator')
-        self.toolbar.setObjectName(u'compactnessCalculator')
+        self.toolbar = self.iface.addToolBar(u'CompactnessCalculator')
+        self.toolbar.setObjectName(u'CompactnessCalculator')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -79,7 +82,7 @@ class compactnessCalculator:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('compactnessCalculator', message)
+        return QCoreApplication.translate('CompactnessCalculator', message)
 
 
     def add_action(
@@ -133,7 +136,7 @@ class compactnessCalculator:
         """
 
         # Create the dialog (after translation) and keep reference
-        self.dlg = compactnessCalculatorDialog()
+        self.dlg = CompactnessCalculatorDialog()
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -161,7 +164,7 @@ class compactnessCalculator:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/compactnessCalculator/icon.png'
+        icon_path = ':/plugins/CompactnessCalculator/icon.png'
         self.add_action(
             icon_path,
             text=self.tr(u'Compactness Calculations'),
@@ -181,12 +184,53 @@ class compactnessCalculator:
 
 
     def get_current_selection(self):
-        """Returns the features currently selected by the user. Exits
-        gracefully if nothing is selected."""
-        pass
+        """Returns the features currently selected by the user. Requires
+        exactly one selection."""
+        layer = self.iface.activeLayer()
+
+        if not layer:
+            QMessageBox.critical(self.dlg, 'Error', u"Please select a layer!")
+            return False
+        if len(layer.selectedFeatures()) != 1:
+            QMessageBox.critical(self.dlg,
+                                 'Error',
+                                 u"Please select exactly one feature!")
+            return False
+        else:
+            self.feature = layer.selectedFeatures()[0]
+            self.crs = layer.crs()
+            return True
+
 
     def feature_to_geojson(self):
         """Converts a qgis Feature geometry to GeoJSON format."""
+        # Coordinate transform -> EPSG 2163
+        target_crs = QgsCoordinateReferenceSystem(2163, QgsCoordinateReferenceSystem.EpsgCrsId)
+        if not target_crs.isValid():
+            QMessageBox.critical(self.dlg, 'Error', u"Error creating target CRS")
+            return False
+
+        xform = QgsCoordinateTransform(self.crs, target_crs)
+
+        geom = self.feature.geometry()
+        result = geom.transform(xform)
+        if result != 0:
+            QMessageBox.critical(self.dlg, 'Error', u"Error transforming CRS")
+            return False
+
+        # Save relevant params
+        self.perimeter = geom.length()
+        self.area = geom.area()
+        self.convex_hull_area = geom.convexHull().area()
+        # We can't calculate minimum bounding circle easily. Maybe calculate
+        # largest distance from centroid to edge?
+
+        # Export to GeoJSON dictionary
+        self.geojson = json.loads(geom.exportToGeoJSON())
+        return True
+
+    def calc_scores(self, metrics):
+        """Calculates compactness metrics for the geom using mander"""
         pass
 
     def add_layer_to_ui(self):
@@ -199,12 +243,21 @@ class compactnessCalculator:
 
     def run(self):
         """Run method that performs all the real work"""
+        if not self.get_current_selection():
+            return
+
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
+            self.feature_to_geojson()
+            if not isinstance(self.geojson, dict):
+                QMessageBox.critical(self.dlg, 'Error', u"GeoJSON wasn't formed properly.")
+                return
+
+            # Get desired metrics from dialog
+            metrics = []
+            scores = self.calc_scores(metrics)
             pass

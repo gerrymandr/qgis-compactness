@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>compactnessCalculatorDialogBase</class>
- <widget class="QDialog" name="compactnessCalculatorDialogBase" >
+ <class>CompactnessCalculatorDialogBase</class>
+ <widget class="QDialog" name="CompactnessCalculatorDialogBase" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -34,7 +34,7 @@
   <connection>
    <sender>button_box</sender>
    <signal>accepted()</signal>
-   <receiver>compactnessCalculatorDialogBase</receiver>
+   <receiver>CompactnessCalculatorDialogBase</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="source_label" >
@@ -50,7 +50,7 @@
   <connection>
    <sender>button_box</sender>
    <signal>rejected()</signal>
-   <receiver>compactnessCalculatorDialogBase</receiver>
+   <receiver>CompactnessCalculatorDialogBase</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="source_label" >
