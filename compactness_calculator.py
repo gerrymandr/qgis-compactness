@@ -20,13 +20,28 @@
  *                                                                         *
  ***************************************************************************/
 """
+# from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+# from PyQt4.QtGui import QAction, QIcon
+# # Initialize Qt resources from file resources.py
+# import resources
+# # Import the code for the dialog
+# from compactness_calculator_dialog import compactnessCalculatorDialog
+# import os.path
+
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QAction, QIcon
+from qgis.core import *
+from qgis.utils import *
+from qgis.core import QgsMapLayerRegistry
+from qgis.gui import QgsMapCanvasLayer
 # Initialize Qt resources from file resources.py
-import resources
+#import resources
 # Import the code for the dialog
 from compactness_calculator_dialog import compactnessCalculatorDialog
 import os.path
+import time
+import processing
 
 
 class compactnessCalculator:
@@ -60,6 +75,7 @@ class compactnessCalculator:
 
 
         # Declare instance attributes
+        self.dlg = compactnessCalculatorDialog(iface)
         self.actions = []
         self.menu = self.tr(u'&Compactness Calculator')
         # TODO: We are going to let the user set this up in a future iteration
@@ -133,8 +149,6 @@ class compactnessCalculator:
         """
 
         # Create the dialog (after translation) and keep reference
-        self.dlg = compactnessCalculatorDialog()
-
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
         action.triggered.connect(callback)
@@ -183,6 +197,7 @@ class compactnessCalculator:
     def run(self):
         """Run method that performs all the real work"""
         # show the dialog
+        self.dlg.__init__(iface)
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
