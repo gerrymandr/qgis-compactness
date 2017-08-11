@@ -338,6 +338,22 @@ class CompactnessCalculator:
                 QMessageBox.critical(self.dlg, 'Error', u"Error adding layer to UI")
                 return
             return
+        self.loadToMap()
 
     def populate(self):
-        pass
+
+        if self:
+            # conversion
+            print self.dlg.ConvexHull.isChecked()
+            print self.dlg.Polsby.isChecked()
+            print self.dlg.Reock.isChecked()
+            print self.dlg.Schwartzberg.isChecked()
+
+    # create load to map
+    def loadToMap(self):
+        if self.dlg.addBox.checkState() == Qt.Checked:
+            if not util.addShape(self.dlg.shapefileName):
+                QMessageBox.warning(None, "compactness", \
+                    QApplication.translate("compactness", \
+                    "Error loading shapefile:\n", None, \
+                    QApplication.UnicodeUTF8) + self.dlg.shapefileName)
