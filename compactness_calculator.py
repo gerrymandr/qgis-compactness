@@ -294,12 +294,12 @@ class CompactnessCalculator:
         new_layer.updateExtents()
 
         if path.strip() != "":
-            if path.endswith(".json"):
+            if path.endswith(".json") or path.endswith(".geojson"):
                 filetype = 'GeoJson'
             elif path.endswith(".shp"):
                 filetype = 'ESRI Shapefile'
             else:
-                QMessageBox.warning(self.dlg, 'Warning', u"Unsupported filetype.")
+                QMessageBox.warning(self.dlg, 'Warning', u"Unsupported file extension.")
                 return False
                 
             QgsVectorFileWriter.writeAsVectorFormat(new_layer, 
@@ -311,13 +311,6 @@ class CompactnessCalculator:
 
         if layer: 
             QgsMapLayerRegistry.instance().addMapLayer(new_layer)
-
-        return True
-
-    def save_to_geojson(self, path):
-        """Saves the GeoJSON coordinates to disk."""
-        QgsVectorFileWriter.writeAsVectorFormat(l, 
-            '/tmp/myjson.json', 'utf-8', l.crs(), 'GeoJson')
 
         return True
 
