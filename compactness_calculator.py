@@ -208,8 +208,8 @@ class CompactnessCalculator:
 
     def feature_to_geojson(self):
         """Converts a qgis Feature geometry to GeoJSON format."""
-        # Coordinate transform -> EPSG 2163
-        target_crs = QgsCoordinateReferenceSystem(2163, QgsCoordinateReferenceSystem.EpsgCrsId)
+        # Coordinate transform -> EPSG 4326
+        target_crs = QgsCoordinateReferenceSystem(4326, QgsCoordinateReferenceSystem.EpsgCrsId)
         if not target_crs.isValid():
             QMessageBox.critical(self.dlg, 'Error', u"Error creating target CRS")
             return False
@@ -242,45 +242,40 @@ class CompactnessCalculator:
     def calc_scores(self, mets):
         """Calculates compactness metrics for the geom using mander"""
         d = districts.District(json=self.geojson)
-        print d.gdf.head()
-        print d.area, d.perimeter, d.epsg
         self.scores = {}
         for metric in mets:
             if metric == "PP":
-                self.scores[metric] = metrics.calculatePolsbyPopper(d)
+                self.scores[metric] = float(metrics.calculatePolsbyPopper(d).values[0])
             elif metric == "CH":
-                self.scores[metric] = metrics.calculateConvexHull(d)
+                self.scores[metric] = float(metrics.calculateConvexHull(d).values[0])
             elif metric == "RK":
-                self.scores[metric] = metrics.calculateReock(d)
+                self.scores[metric] = float(metrics.calculateReock(d).values[0])
             elif metric == "SB":
-                self.scores[metric] = metrics.calculateSchwartzberg(d)        
- 
+                self.scores[metric] = float(metrics.calculateSchwartzberg(d).values[0])
         return True
 
     def add_layer_to_ui(self):
         """Creates a layer and adds it to the current UI."""
-        geom_type = self.geojson['features'][0].get('type', 'Polygon')  # Polygon, MultiPolygon, etc.
-
         # Create a new layer in memory
-        new_layer = QgsVectorLayer(geom_type, "compactness_scores", "memory")
+        new_layer = QgsVectorLayer('Polygon', "compactness_scores", "memory")
         provider = new_layer.dataProvider()
 
         attributes = self.feature.attributes()  # list of values
         fields = self.feature.fields()  # QgsFields object
-        
         # Append new fields and attributes
         for score in self.scores:
-            fields.append(QgsField(score, QVariant.Double, '', 20, 3))
+            fields.append(QgsField(score, QVariant.Double, '', 20, 4))
             attributes.append(self.scores[score])
-       
+
         new_layer.startEditing()
 
-        provider.addAttributes(fields)
+        provider.addAttributes(fields.toList())
         new_layer.updateFields()
 
         f = QgsFeature()
         f.setGeometry(self.feature.geometry())
         f.setAttributes(attributes)
+        
         provider.addFeatures([f])
         
         new_layer.commitChanges()
@@ -342,7 +337,6 @@ class CompactnessCalculator:
             if not self.add_layer_to_ui():
                 QMessageBox.critical(self.dlg, 'Error', u"Error adding layer to UI")
                 return
-            print self.scores
             return
 
     def populate(self):
