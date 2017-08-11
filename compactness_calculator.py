@@ -347,6 +347,7 @@ class CompactnessCalculator:
                 return
             print self.scores
             return
+        self.loadToMap()
 
     def populate(self):
 
@@ -356,4 +357,13 @@ class CompactnessCalculator:
             print self.dlg.polsby.isChecked()
             print self.dlg.Reock.isChecked()
             print self.dlg.Schwartzberg.isChecked()
+
+    # create load to map
+    def loadToMap(self):
+        if self.dlg.addBox.checkState() == Qt.Checked:
+            if not util.addShape(self.dlg.shapefileName):
+                QMessageBox.warning(None, "compactness", \
+                    QApplication.translate("compactness", \
+                    "Error loading shapefile:\n", None, \
+                    QApplication.UnicodeUTF8) + self.dlg.shapefileName)
 

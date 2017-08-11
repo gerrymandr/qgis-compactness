@@ -49,6 +49,19 @@
     <string>Browse</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="addBox">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>220</y>
+     <width>321</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Add to map canvas</string>
+   </property>
+  </widget>
   <widget class="QDialogButtonBox" name="button_box">
    <property name="geometry">
     <rect>
