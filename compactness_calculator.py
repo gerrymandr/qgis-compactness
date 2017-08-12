@@ -282,21 +282,14 @@ class CompactnessCalculator:
         new_layer.updateFields()
 
         # Update features with new data
-        """
         for i in xrange(0, len(self.features)):
             attributes = self.features[i].attributes()  # list of values
-
             for field in new_fields:
-                attributes.append(self.scores[field][i])
+                attributes.append(float(self.scores[field][i]))
             self.features[i].setAttributes(attributes)
-        """
-        attrs = self.features[0].attributes()
-        attrs.append([self.scores[field][0] for field in new_fields])
-        f = QgsFeature()
-        f.setGeometry(self.features[0].geometry())
-        f.setAttributes(attrs)
+
         # Add features
-        provider.addFeatures([f])
+        provider.addFeatures(self.features)
         
         new_layer.commitChanges()
         new_layer.updateExtents()
