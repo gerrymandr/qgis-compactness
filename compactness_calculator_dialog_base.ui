@@ -61,6 +61,12 @@
    <property name="text">
     <string>Add to map canvas</string>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="tristate">
+    <bool>false</bool>
+   </property>
   </widget>
   <widget class="QDialogButtonBox" name="button_box">
    <property name="geometry">

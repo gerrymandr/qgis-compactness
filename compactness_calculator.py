@@ -34,7 +34,8 @@ import os.path
 import json
 from mander import districts, metrics, utils
 
-
+# TODO Check file against pylint
+# TODO Diagram
 class CompactnessCalculator:
     """QGIS Plugin Implementation."""
 
@@ -192,25 +193,24 @@ class CompactnessCalculator:
 
 
     def get_current_selection(self):
-        """Returns the features currently selected by the user. Requires
-        exactly one selection."""
+        """Returns the features currently selected by the user."""
         layer = self.iface.activeLayer()
 
         if not layer:
             QMessageBox.critical(self.dlg, 'Error', u"Please select a layer!")
             return False
-        if len(layer.selectedFeatures()) != 1:
+        if len(layer.selectedFeatures()) == 0:
             QMessageBox.critical(self.dlg,
                                  'Error',
-                                 u"Please select exactly one feature!")
+                                 u"Please select some features!")
             return False
         else:
-            self.feature = layer.selectedFeatures()[0]
+            self.features = layer.selectedFeatures()
             self.crs = layer.crs()
             return True
 
 
-    def feature_to_geojson(self):
+    def features_to_geojson(self):
         """Converts a qgis Feature geometry to GeoJSON format."""
         # Coordinate transform -> EPSG 4326
         target_crs = QgsCoordinateReferenceSystem(4326, QgsCoordinateReferenceSystem.EpsgCrsId)
@@ -220,75 +220,76 @@ class CompactnessCalculator:
 
         xform = QgsCoordinateTransform(self.crs, target_crs)
 
-        geom = self.feature.geometry()
-        result = geom.transform(xform)
-        if result != 0:
-            QMessageBox.critical(self.dlg, 'Error', u"Error transforming CRS")
-            return False
+        geojson_features = []
+        for f in self.features:
+            geom = f.geometry()
+            """ Access relevant params. Could be useful in future.
+            self.perimeter = geom.length()
+            self.area = geom.area()
+            self.convex_hull_area = geom.convexHull().area()
+            # We can't calculate minimum bounding circle easily in QGIS.
+            # Can we maybe calculate largest distance from centroid to edge?
+            """
+            if geom.transform(xform) != 0:
+                QMessageBox.critical(self.dlg, 'Error', u"Error transforming CRS")
+                return False
+                
+            geojson_features.append({'geometry': json.loads(geom.exportToGeoJSON()),
+                                     'properties': {},
+                                     'type': 'Feature'})
 
-        # Save relevant params
-        self.perimeter = geom.length()
-        self.area = geom.area()
-        self.convex_hull_area = geom.convexHull().area()
-        # We can't calculate minimum bounding circle easily. Maybe calculate
-        # largest distance from centroid to edge?
-
-        # Put the QGIS geometry into a GeoJSON feature
-        # TODO attach QGIS attributes -> GeoJSON feature properties
-        # TODO handle more than one feature        
-        f = {'geometry': json.loads(geom.exportToGeoJSON()),
-             'properties': {},
-             'type': 'Feature'}
         self.geojson = {'type': 'FeatureCollection',
-                        'features': [f]}
+                        'features': geojson_features}
         return True
 
     def calc_scores(self, mets):
-        """Calculates compactness metrics for the geom using mander"""
+        """Calculates compactness metrics for the geoms using mander."""
         d = districts.District(json=self.geojson)
         self.scores = {}
         for metric in mets:
             if metric == "PP":
-                self.scores[metric] = float(metrics.calculatePolsbyPopper(d).values[0])
+                self.scores[metric] = metrics.calculatePolsbyPopper(d).tolist()
             elif metric == "CH":
-                self.scores[metric] = float(metrics.calculateConvexHull(d).values[0])
+                self.scores[metric] = metrics.calculateConvexHull(d).tolist()
             elif metric == "RK":
-                self.scores[metric] = float(metrics.calculateReock(d).values[0])
+                self.scores[metric] = metrics.calculateReock(d).tolist()
             elif metric == "SB":
-                self.scores[metric] = float(metrics.calculateSchwartzberg(d).values[0])
+                self.scores[metric] = metrics.calculateSchwartzberg(d).tolist()
         return True
 
     def generate_layer(self, layer=True, path=None):
-        """Creates a layer and adds it to the current UI."""
+        """Creates an in-memory layer and displays/saves it."""
         # Create a new layer in memory
         new_layer = QgsVectorLayer('Polygon', "compactness_scores", "memory")
         provider = new_layer.dataProvider()
 
-        attributes = self.feature.attributes()  # list of values
-        fields = self.feature.fields()  # QgsFields object
-
-        # Append new fields and attributes
-        for score in self.scores:
-            fields.append(QgsField(score, QVariant.Double, '', 20, 4))
-            attributes.append(self.scores[score])
-
+        # Add the new fields
+        new_fields = sorted(self.scores.keys())  # need the same order every time
+        fields = self.features[0].fields()  # QgsFields object
+        for field in new_fields:
+            fields.append(QgsField(field, QVariant.Double, '', 20, 4))
+        
+        # All changes to the layer happen below
         new_layer.startEditing()
 
         # Set layer CRS
-        # NOTE A warning message will still appear in QGIS because this isn't set at
-        # layer creation time.
+        # NOTE A warning message will still appear in QGIS
+        # because this isn't set at layer creation time.
         new_layer.setCrs(self.crs)
 
         # Set layer attributes (fields)
         provider.addAttributes(fields.toList())
         new_layer.updateFields()
 
-        # Create feature and set attributes
-        f = QgsFeature()
-        f.setGeometry(self.feature.geometry())
-        f.setAttributes(attributes)
-        
-        provider.addFeatures([f])
+        # Update features with new data
+        for i in xrange(0, len(self.features)):
+            attributes = self.features[i].attributes()  # list of values
+            for field in new_fields:
+                attributes.append(float(self.scores[field][i]))
+            self.features[i].setAttributes(attributes)
+
+        # Add features
+        provider.addFeatures(self.features)
         
         new_layer.commitChanges()
         new_layer.updateExtents()
@@ -315,7 +316,7 @@ class CompactnessCalculator:
         return True
 
     def run(self):
-        """Run method that performs all the real work"""
+        """Run method that performs all the real work."""
         if not self.get_current_selection():
             return
 
@@ -323,10 +324,11 @@ class CompactnessCalculator:
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
+        # TODO see if we can throw warnings without closing the dialog
         self.populate()
         # See if OK was pressed
         if result:
-            self.feature_to_geojson()
+            self.features_to_geojson()
             if not isinstance(self.geojson, dict):
                 QMessageBox.critical(self.dlg, 'Error', u"GeoJSON wasn't formed properly.")
                 return
@@ -358,4 +360,5 @@ class CompactnessCalculator:
             return
 
     def populate(self):
+        """May be useful for more complicated UI functionality."""
         pass
