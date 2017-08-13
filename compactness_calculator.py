@@ -20,19 +20,19 @@
  *                                                                         *
  ***************************************************************************/
 """
+import json
+import os.path
 from PyQt4.QtCore import (QSettings, QTranslator, qVersion, QCoreApplication,
                           QVariant, QObject, SIGNAL)
 from PyQt4.QtGui import QAction, QIcon, QMessageBox
 from qgis.core import (QgsCoordinateTransform, QgsCoordinateReferenceSystem,
-                       QgsFeature, QgsVectorLayer, QgsField,
+                       QgsVectorLayer, QgsField,
                        QgsMapLayerRegistry, QgsVectorFileWriter)
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog
 from compactness_calculator_dialog import CompactnessCalculatorDialog
-import os.path
-import json
-from mander import districts, metrics, utils
+from mander import districts, metrics
 
 # TODO Check file against pylint
 # TODO Diagram
@@ -199,23 +199,23 @@ class CompactnessCalculator:
         if not layer:
             QMessageBox.critical(self.dlg, 'Error', u"Please select a layer!")
             return False
-        if len(layer.selectedFeatures()) == 0:
-            QMessageBox.critical(self.dlg,
-                                 'Error',
-                                 u"Please select some features!")
-            return False
-        else:
-            self.features = layer.selectedFeatures()
-            self.crs = layer.crs()
-            return True
 
+        self.crs = layer.crs()
+
+        if layer.selectedFeatures() == []:
+            QMessageBox.warning(self.dlg,
+                                 'Warning',
+                                 u"No features selected - the entire layer will be processed.")
+            layer.selectAll()
+        self.features = layer.selectedFeatures()
+        return True
 
     def features_to_geojson(self):
         """Converts a qgis Feature geometry to GeoJSON format."""
         # Coordinate transform -> EPSG 4326
         target_crs = QgsCoordinateReferenceSystem(4326, QgsCoordinateReferenceSystem.EpsgCrsId)
         if not target_crs.isValid():
-            QMessageBox.critical(self.dlg, 'Error', u"Error creating target CRS")
+            QMessageBox.critical(self.dlg, 'Error', u"Error creating target CRS.")
             return False
 
         xform = QgsCoordinateTransform(self.crs, target_crs)
@@ -231,9 +231,9 @@ class CompactnessCalculator:
             # Can we maybe calculate largest distance from centroid to edge?
             """
             if geom.transform(xform) != 0:
-                QMessageBox.critical(self.dlg, 'Error', u"Error transforming CRS")
+                QMessageBox.critical(self.dlg, 'Error', u"Error transforming CRS.")
                 return False
-                
+
             geojson_features.append({'geometry': json.loads(geom.exportToGeoJSON()),
                                      'properties': {},
                                      'type': 'Feature'})
@@ -268,7 +268,7 @@ class CompactnessCalculator:
         fields = self.features[0].fields()  # QgsFields object
         for field in new_fields:
             fields.append(QgsField(field, QVariant.Double, '', 20, 4))
-        
+
         # All changes to the layer happen below
         new_layer.startEditing()
 
@@ -290,7 +290,7 @@ class CompactnessCalculator:
 
         # Add features
         provider.addFeatures(self.features)
-        
+
         new_layer.commitChanges()
         new_layer.updateExtents()
 
@@ -300,17 +300,19 @@ class CompactnessCalculator:
             elif path.endswith(".shp"):
                 filetype = 'ESRI Shapefile'
             else:
-                QMessageBox.warning(self.dlg, 'Warning', u"Unsupported file extension.")
+                QMessageBox.critical(self.dlg,
+                                     'Error',
+                                     u"Unsupported file type. Only GeoJSON (.json, .geojson) and ESRI Shapefile (.shp) are supported.")
                 return False
-                
-            QgsVectorFileWriter.writeAsVectorFormat(new_layer, 
+
+            QgsVectorFileWriter.writeAsVectorFormat(new_layer,
                                                     path,
                                                     'utf-8',
                                                     new_layer.crs(),
                                                     filetype)
             print "Saved to " + path
 
-        if layer: 
+        if layer:
             QgsMapLayerRegistry.instance().addMapLayer(new_layer)
 
         return True
@@ -324,7 +326,6 @@ class CompactnessCalculator:
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
-        # TODO see if we can throw warnings without closing the dialog
         self.populate()
         # See if OK was pressed
         if result:
@@ -332,7 +333,7 @@ class CompactnessCalculator:
             if not isinstance(self.geojson, dict):
                 QMessageBox.critical(self.dlg, 'Error', u"GeoJSON wasn't formed properly.")
                 return
-            
+
             # Get desired metrics from dialog
             # TODO populate dialog with available metrics from mander
             mets = []
@@ -347,15 +348,15 @@ class CompactnessCalculator:
 
             if mets == []:
                 QMessageBox.warning(self.dlg, 'Warning', u"Please select at least one metric.")
-                return
+                self.dlg.show()
 
             if not self.calc_scores(mets):
-                QMessageBox.critical(self.dlg, 'Error', u"Error calculating scores")
+                QMessageBox.critical(self.dlg, 'Error', u"Error calculating scores.")
                 return
-            
+
             if not self.generate_layer(layer=self.dlg.layerFlag.isChecked(),
                                        path=self.dlg.filepath.text()):
-                QMessageBox.critical(self.dlg, 'Error', u"Error adding layer or saving file")
+                QMessageBox.critical(self.dlg, 'Error', u"Error adding layer or saving file.")
                 return
             return
 
