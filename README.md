@@ -65,6 +65,8 @@ Open source, MIT license
 
 ## Tutorials
 
+We largely followed [this great tutorial](http://www.qgistutorials.com/en/docs/building_a_python_plugin.html).
+
 Plugin Builder has a ton of built in documentation that will describe how to compile and build your plugin. An example is copied here.
 
 1.  In your QGIS plugin directory, compile the resources file using pyrcc4 (simply run **make** if you have automake or use **pb_tool**)
