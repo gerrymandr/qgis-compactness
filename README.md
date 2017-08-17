@@ -2,12 +2,12 @@
 
 A work-in-progress at the Metric Geometry and Gerrymandering Group (MGGG).
 
-An open-source plugin built to allow QGIS users to apply different Measures of Compactness on District polygons.
+An open-source plugin built to allow QGIS users to apply different measures of [compactness](https://en.wikipedia.org/wiki/Compactness_measure_of_a_shape) on polygonal features.
 
-1. Select a layer
-1. (*optional*) Select one or more specific features
-1. Click Compactness Calculator and choose desired metrics
-1. Choose to save the layer/selection to disk (GeoJSON or Shapefile) and/or add it to your project
+1. Select a layer.
+1. (*optional*) Select one or more specific features.
+1. Click `Compactness Calculations` and choose desired metrics.
+1. Choose to save the layer/selection to disk (GeoJSON or Shapefile) and/or add it to your project as an in-memory layer.
 
 Built on top of the Python [Mander Library](https://pypi.python.org/pypi/mander) v. 0.3 and 64-bit QGIS 2.18.11
 
@@ -27,7 +27,7 @@ Watch this for an overview on the issues concerning [Redistricting, Gerrymanderi
 
 ## Roadmap
 
-### Phase 1: Meet standards for public plugins
+### Phase 1: Meet standards for public [plugins](https://plugins.qgis.org/)
 * No duplicate functionality with existing plugins.
 * Link to documentation from inside the plugin.
 * Include a test set.
