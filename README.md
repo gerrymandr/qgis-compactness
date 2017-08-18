@@ -9,14 +9,14 @@ An open-source plugin built to allow QGIS users to apply different measures of [
 1. Click `Compactness Calculations` and choose desired metrics.
 1. Choose to save the layer/selection to disk (GeoJSON or Shapefile) and/or add it to your project as an in-memory layer.
 
-Built on top of the Python [Mander Library](https://pypi.python.org/pypi/mander) v. 0.3 and 64-bit QGIS 2.18.11
+Built on top of the Python [Mander Library](https://github.com/gerrymandr/python-mander) v. 0.3 and 64-bit QGIS 2.18.11
 
 Watch this for an overview on the issues concerning [Redistricting, Gerrymandering, and Compactness of Political Districts](https://www.youtube.com/watch?v=vdkvQ9y04K4)
 
 ## Installation
 
 1. Clone this repository and copy it to your QGIS plugins directory (for example, `~/.qgis2/python/plugins/`).
-1. Install mander to your Python environment with eg. `[sudo ]pip install mander`.
+1. Install [mander](https://pypi.python.org/pypi/mander) to your Python environment with eg. `[sudo ]pip install mander`. Make sure you have [GDAL](http://www.gdal.org/).
 1. Open QGIS and in the Plugins menu click `Manage and Install Plugins`.
 1. Click `Settings` and check `Show also experimental plugins`.
 1. Click `All` and find the `Compactness Calculator` plugin and click `Install`.
@@ -28,24 +28,24 @@ Watch this for an overview on the issues concerning [Redistricting, Gerrymanderi
 ## Roadmap
 
 ### Phase 1: Meet standards for public [plugins](https://plugins.qgis.org/)
-* No duplicate functionality with existing plugins.
-* Link to documentation from inside the plugin.
+* Confirm duplicate functionality with existing plugins.
+~~* Link to documentation from inside the plugin.~~
 * Include a test set.
-* Confirm metadata links are correct.
+~~* Confirm metadata links are correct.~~
 * PEP8 compliance and commenting.
-* Rename folder (and repo) to not contain the word plugin.
-* Add external dependencies to "About" metadata field.
+~~* Rename folder (and repo) to not contain the word plugin.~~
+~~* Add external dependencies to "About" metadata field.~~
 * Create OSGeo account.
 
 ### Phase 2: Obvious and necessary improvements
 * **MultiPolygons** - right now only simple polygons are supported.
 * **Automatic metric visualization** - right now this is up to the user.
-* Unit tests instead of if statements.
 * Instead of hardcoding metrics, can we populate them dynamically from mander?
 * Diagram or tree of how source code files are connected.
 * Custom icon!
 
-### Phase 3: Refactor and optimize
+### Phase 3: Testing and refactoring
+* Unit testing and continuous integration. [Relevant blog](https://boundlessgeo.com/2016/07/qgis-continuous-integration-testing-environment-for-python-plugins/)
 * Can we refactor this to be a subplugin of Processing so it has a lighter footprint and better integration with the rest of QGIS? (eg. modeling, batch commands)
 
 ## License

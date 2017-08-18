@@ -15,7 +15,7 @@ version=0.1
 author=Ariel and Vanessa
 email=vanessa@flippable.org
 
-about=Uses the Python mander library to calculate compactness metrics on polygons. Works on selected features or entire layers. Available metrics are dynamically loaded from mander and the results are stored in a new in-memory layer or saved to disk.
+about=Uses the Python mander library to calculate compactness metrics on polygons. You must install mander (`sudo pip install mander` or find the package on PyPi) and its dependencies, including GDAL. The calculator works on selected features or entire layers. Available metrics are dynamically loaded from mander and the results are stored in a new in-memory layer or saved to disk.
 
 tracker=https://github.com/gerrymandr/qgis-compactness/issues
 repository=https://github.com/gerrymandr/qgis-compactness

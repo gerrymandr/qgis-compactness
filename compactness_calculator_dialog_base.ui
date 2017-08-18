@@ -149,6 +149,22 @@
     <string>Choose file output path:</string>
    </property>
   </widget>
+  <widget class="QLabel" name="aboutlink">
+   <property name="geometry">
+    <rect>
+     <x>8</x>
+     <y>277</y>
+     <width>131</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;a href=&quot;https://github.com/gerrymandr/qgis-compactness&quot;&gt;More information&lt;/a&gt;</string>
+   </property>
+   <property name="openExternalLinks">
+    <bool>true</bool>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>
