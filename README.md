@@ -29,12 +29,12 @@ Watch this for an overview on the issues concerning [Redistricting, Gerrymanderi
 
 ### Phase 1: Meet standards for public [plugins](https://plugins.qgis.org/)
 * Confirm duplicate functionality with existing plugins.
-~~* Link to documentation from inside the plugin.~~
+* ~~Link to documentation from inside the plugin.~~
 * Include a test set.
-~~* Confirm metadata links are correct.~~
+* ~~Confirm metadata links are correct.~~
 * PEP8 compliance and commenting.
-~~* Rename folder (and repo) to not contain the word plugin.~~
-~~* Add external dependencies to "About" metadata field.~~
+* ~~Rename folder (and repo) to not contain the word plugin.~~
+* ~~Add external dependencies to "About" metadata field.~~
 * Create OSGeo account.
 
 ### Phase 2: Obvious and necessary improvements
