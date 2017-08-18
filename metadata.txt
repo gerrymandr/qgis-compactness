@@ -4,20 +4,21 @@
 # embedding metadata in __init__.py will 
 # is no longer supported since version 2.0.
 
-# This file should be included when you package your plugin.# Mandatory items:
+# This file should be included when you package your plugin.
+# Mandatory items:
 
 [general]
 name=Compactness Calculator
 qgisMinimumVersion=2.0
-description=Compactness calculations
+description=Calculates compactness metrics on polygons.
 version=0.1
 author=Ariel and Vanessa
 email=vanessa@flippable.org
 
-about=This is an about.
+about=Uses the Python mander library to calculate compactness metrics on polygons. Works on selected features or entire layers. Available metrics are dynamically loaded from mander and the results are stored in a new in-memory layer or saved to disk.
 
-tracker=bug
-repository=repo
+tracker=https://github.com/gerrymandr/qgis-compactness/issues
+repository=https://github.com/gerrymandr/qgis-compactness
 # End of mandatory metadata
 
 # Recommended items:
@@ -28,7 +29,7 @@ repository=repo
 # Tags are comma separated with spaces allowed
 tags=
 
-homepage=
+homepage=https://github.com/gerrymandr/qgis-compactness
 category=Vector
 icon=icon.png
 # experimental flag
